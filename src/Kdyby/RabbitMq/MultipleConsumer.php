@@ -70,8 +70,16 @@ class MultipleConsumer extends \Kdyby\RabbitMq\Consumer
 			$this->doQueueDeclare($name, $options);
 		}
 
-		$this->queueDeclared = TRUE;
+		$this->queueDeclared = true;
 	}
+
+    public function stopConsuming(): void
+    {
+        foreach ($this->queues as $name => $options) {
+            $this->getChannel()->basic_cancel($this->getQueueConsumerTag($name));
+        }
+        $this->onStop($this);
+    }
 
 	public function processQueueMessage(string $queueName, AMQPMessage $msg): void
 	{
